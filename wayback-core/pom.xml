@@ -4,10 +4,11 @@
 
   <parent>
     <artifactId>openwayback</artifactId>
-    <groupId>org.netpreserve.openwayback</groupId>
-    <version>2.4.0</version>
+    <groupId>org.lockss.openwayback</groupId>
+    <version>2.4.0-2-SNAPSHOT</version>
   </parent>
 
+  <groupId>org.lockss.openwayback</groupId>
   <artifactId>openwayback-core</artifactId>
   <name>OpenWayback Core Java Classes</name>
   <packaging>jar</packaging>
@@ -41,6 +42,7 @@
       <dependency>
           <groupId>${project.groupId}</groupId>
           <artifactId>openwayback-cdx-server</artifactId>
+          <version>${project.version}</version>
       </dependency>
     <dependency>
       <groupId>junit</groupId>

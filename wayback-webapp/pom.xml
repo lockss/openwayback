@@ -3,10 +3,11 @@
 
   <parent>
     <artifactId>openwayback</artifactId>
-    <groupId>org.netpreserve.openwayback</groupId>
-    <version>2.4.0</version>
+    <groupId>org.lockss.openwayback</groupId>
+    <version>2.4.0-2-SNAPSHOT</version>
   </parent>
-
+  
+  <groupId>org.lockss.openwayback</groupId>
   <artifactId>openwayback-webapp</artifactId>
   <name>OpenWayback Web Application</name>
   <packaging>war</packaging>
