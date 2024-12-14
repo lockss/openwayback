@@ -155,7 +155,7 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
         
 	
 	private static final String choosers[] = {
-			STRIP_USERINFO_CHOOSER,
+//			STRIP_USERINFO_CHOOSER,
 			STRIP_WWW_CHOOSER,
 			STRIP_PHPSESSION_ID_CHOOSER,
 			STRIP_JSESSION_ID_CHOOSER,
@@ -166,7 +166,7 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
 			STRIP_CFSESSION_CHOOSER				
 	};
 	private static final Pattern strippers[] = {
-			STRIP_USERINFO_REGEX,
+//			STRIP_USERINFO_REGEX,
 			STRIP_WWW_REGEX,
 			STRIP_PHPSESSION_ID_REGEX,
 			STRIP_JSESSION_ID_REGEX,
