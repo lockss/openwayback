@@ -206,6 +206,7 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
 
 	public String urlStringToKey(final String urlString) throws URIException {
 
+		LOGGER.finer("Request url: " + urlString);
 		if(urlString.startsWith("dns:")) {
 			return urlString;
 		}
@@ -281,8 +282,9 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
 		if(searchURI.getEscapedQuery() != null) {
 			sb.append("?").append(searchURI.getEscapedQuery());
 		}
-
-		return sb.toString();
+		String result = sb.toString();
+		LOGGER.finer("Transformed Url:" + result);
+		return result;
 	}
 
 	/**
@@ -297,7 +299,7 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
 	 * @return canonicalized version of url argument.
 	 */
 	public String canonicalize(String url) {
-
+		LOGGER.finest("precanoncalization: "+ url);
         if (url == null || url.length() <= 0) {
             return url;
         }
@@ -336,7 +338,8 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
                 url = url.substring(0, url.length() - 1);
             }
         }
-        return url;
+		LOGGER.finest("postcanoncalization: "+ url);
+		return url;
 	}
 	
 	private static void USAGE() {
