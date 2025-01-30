@@ -206,7 +206,7 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
 
 	public String urlStringToKey(final String urlString) throws URIException {
 
-		LOGGER.finer("Request url: " + urlString);
+		LOGGER.fine("Request url: " + urlString);
 		if(urlString.startsWith("dns:")) {
 			return urlString;
 		}
@@ -283,7 +283,7 @@ public class AggressiveUrlCanonicalizer implements UrlCanonicalizer {
 			sb.append("?").append(searchURI.getEscapedQuery());
 		}
 		String result = sb.toString();
-		LOGGER.finer("Transformed Url:" + result);
+		LOGGER.fine("Transformed Url:" + result);
 		return result;
 	}
 

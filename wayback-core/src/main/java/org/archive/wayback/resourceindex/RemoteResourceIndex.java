@@ -290,6 +290,7 @@ public class RemoteResourceIndex implements ResourceIndex {
 		addNodeDataToSearchResult(e,result);
 		return result;
 	}
+
 	private CaptureSearchResult searchElementToCaptureSearchResult(Node e) {
 
 		CaptureSearchResult result = new CaptureSearchResult();
