@@ -377,7 +377,7 @@ public class RemoteResourceIndex implements ResourceIndex {
 
 		String userInfo = u.getUserInfo();
 		if (userInfo != null && !userInfo.isEmpty()) {
-			String[] credentials = u.getUserInfo().split(":");
+			String[] credentials = userInfo.split(":");
 			if (credentials.length == 2) {
 				String username = credentials[0];
 				String password = credentials[1];
