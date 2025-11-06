@@ -1,5 +1,5 @@
-ARG MAVEN_TAG=latest
-ARG TOMCAT_TAG=latest
+ARG MAVEN_TAG=3.8.6-openjdk-8-slim
+ARG TOMCAT_TAG=8.5.40-slim
 
 # Building stage
 FROM maven:${MAVEN_TAG} AS builder
