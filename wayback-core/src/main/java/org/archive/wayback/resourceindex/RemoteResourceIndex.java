@@ -21,8 +21,10 @@ package org.archive.wayback.resourceindex;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Base64;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -88,25 +90,26 @@ public class RemoteResourceIndex implements ResourceIndex {
 
 	@SuppressWarnings("unchecked")
 	private final ThreadLocal tl = new ThreadLocal() {
-        protected synchronized Object initialValue() {
-        	DocumentBuilder builder = null;
-            try {
-            	if(factory != null) {
+		protected synchronized Object initialValue() {
+			DocumentBuilder builder = null;
+			try {
+				if (factory != null) {
 					builder = factory.newDocumentBuilder();
 					if (!builder.isNamespaceAware()) {
 						LOGGER.severe("Builder is not namespace aware.");
 					}
-            	}
+				}
 			} catch (ParserConfigurationException e) {
 				// TODO: OK to just "eat" this error? 
 				e.printStackTrace();
 			}
 			return builder;
-        }
-    };
-    private DocumentBuilder getDocumentBuilder() {
-        return (DocumentBuilder) tl.get();
-    }
+		}
+	};
+
+	private DocumentBuilder getDocumentBuilder() {
+		return (DocumentBuilder) tl.get();
+	}
 
     /**
      * @throws ConfigurationException
@@ -128,22 +131,37 @@ public class RemoteResourceIndex implements ResourceIndex {
 		AccessControlException {
 //		throw new ResourceIndexNotAvailableException("oops");
 		ClosestTrackingCaptureFilterGroup closestGroup = new ClosestTrackingCaptureFilterGroup(wbRequest, canonicalizer);
-		SearchResults results = urlToSearchResults(getRequestUrl(wbRequest),
-				getSearchResultFilters(wbRequest, closestGroup));
-        closestGroup.annotateResults(results);
-        return results;
+		long startTime = System.currentTimeMillis();
+		String requestUrl = getRequestUrl(wbRequest);
+		try {
+			SearchResults results = urlToSearchResults(requestUrl,
+					getSearchResultFilters(wbRequest, closestGroup));
+			closestGroup.annotateResults(results);
+			return results;
+		} catch (SocketTimeoutException e) {
+			String msg = "SocketTimeoutException: url = " + wbRequest.getRequestUrl() + " requestUrl = " + requestUrl;
+			System.out.println(msg);
+			throw new ResourceIndexNotAvailableException(e.getMessage());
+		} finally {
+			long endTime = System.currentTimeMillis();
+			String msg = "CDX lookup took " + (endTime - startTime) + "ms; " +
+					"url = " + wbRequest.getRequestUrl() + " requestUrl = " + requestUrl;
+			System.out.println(msg);
+		}
 	}
 
 	protected SearchResults urlToSearchResults(String requestUrl,
 			ObjectFilter<CaptureSearchResult> filter)
 			throws ResourceIndexNotAvailableException,
 			ResourceNotInArchiveException, BadQueryException,
-			AccessControlException {
+			AccessControlException, SocketTimeoutException {
 
 		Document document = null;
 		try {
 			// HTTP Request + parse
-			LOGGER.info("Getting index XML from ("+requestUrl+")");
+			LOGGER.info("Getting index XML from (" + requestUrl + ")");
+			// Here is where the REST getCdxOwb call is made; returns a
+			// Document instance that is a representation of the XML response
 			document = getHttpDocument(requestUrl);
 		} catch (IOException e) {
 			// TODO: better error for user:
@@ -356,11 +374,28 @@ public class RemoteResourceIndex implements ResourceIndex {
 		URLConnection conn = u.openConnection();
 		conn.setConnectTimeout(connectTimeout);
 		conn.setReadTimeout(readTimeout);
+
+		String userInfo = u.getUserInfo();
+		if (userInfo != null && !userInfo.isEmpty()) {
+			String[] credentials = u.getUserInfo().split(":");
+			if (credentials.length == 2) {
+				String username = credentials[0];
+				String password = credentials[1];
+				conn.setRequestProperty("Authorization",
+					getBasicAuthHeader(username, password));
+			}
+		}
+
 		return (getDocumentBuilder()).parse(conn.getInputStream(),url);
 	}
 	protected Document getFileDocument(File f)
 			throws IOException, SAXException {
 		return (getDocumentBuilder()).parse(f);
+	}
+
+	private String getBasicAuthHeader(String username, String password) {
+		byte[] auth = (username + ":" + password).getBytes();
+		return "Basic " + new String(Base64.getEncoder().encode(auth));
 	}
 
 	/**
