@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.logging.Logger;
 
@@ -139,14 +140,13 @@ public class RemoteResourceIndex implements ResourceIndex {
 			closestGroup.annotateResults(results);
 			return results;
 		} catch (SocketTimeoutException e) {
-			String msg = "SocketTimeoutException: url = " + wbRequest.getRequestUrl() + " requestUrl = " + requestUrl;
-			System.out.println(msg);
+			LOGGER.warning("SocketTimeoutException: url = " + wbRequest.getRequestUrl()
+					+ " requestUrl = " + requestUrl);
 			throw new ResourceIndexNotAvailableException(e.getMessage());
 		} finally {
 			long endTime = System.currentTimeMillis();
-			String msg = "CDX lookup took " + (endTime - startTime) + "ms; " +
-					"url = " + wbRequest.getRequestUrl() + " requestUrl = " + requestUrl;
-			System.out.println(msg);
+			LOGGER.finer("CDX lookup took " + (endTime - startTime) + "ms; "
+					+ "url = " + wbRequest.getRequestUrl() + " requestUrl = " + requestUrl);
 		}
 	}
 
@@ -377,7 +377,7 @@ public class RemoteResourceIndex implements ResourceIndex {
 
 		String userInfo = u.getUserInfo();
 		if (userInfo != null && !userInfo.isEmpty()) {
-			String[] credentials = userInfo.split(":");
+			String[] credentials = userInfo.split(":", 2);
 			if (credentials.length == 2) {
 				String username = credentials[0];
 				String password = credentials[1];
@@ -394,8 +394,8 @@ public class RemoteResourceIndex implements ResourceIndex {
 	}
 
 	private String getBasicAuthHeader(String username, String password) {
-		byte[] auth = (username + ":" + password).getBytes();
-		return "Basic " + new String(Base64.getEncoder().encode(auth));
+		byte[] auth = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
+		return "Basic " + Base64.getEncoder().encodeToString(auth);
 	}
 
 	/**

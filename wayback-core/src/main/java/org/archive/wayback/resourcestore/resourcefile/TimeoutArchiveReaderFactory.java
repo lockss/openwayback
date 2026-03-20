@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import org.archive.io.ArchiveReader;
@@ -62,7 +63,7 @@ public class TimeoutArchiveReaderFactory extends ArchiveReaderFactory {
 
 	String userInfo = f.getUserInfo();
 	if (userInfo != null && !userInfo.isEmpty()) {
-		String[] credentials = userInfo.split(":");
+		String[] credentials = userInfo.split(":", 2);
 		if (credentials.length == 2) {
 			String username = credentials[0];
 			String password = credentials[1];
@@ -88,8 +89,8 @@ public class TimeoutArchiveReaderFactory extends ArchiveReaderFactory {
             (offset == 0));
     }
 
-    private String getBasicAuthHeader(String username, String password) {
-	byte[] auth = (username + ":" + password).getBytes();
-	return "Basic " + new String(Base64.getEncoder().encode(auth));
-    }
+	private String getBasicAuthHeader(String username, String password) {
+		byte[] auth = (username + ":" + password).getBytes(StandardCharsets.UTF_8);
+		return "Basic " + Base64.getEncoder().encodeToString(auth);
+	}
 }
